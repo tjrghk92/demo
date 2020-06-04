@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="demo.custom.mapper.FileMapper">
+
+    <select id="selectFile" parameterType="cstMap" resultType="cstMap">
+        SELECT /*selectFile */
+           fd.file_id,
+           fd.real_file_name,
+           fd.file_name,
+           fd.reg_dtm,
+           fd.web_path,
+           fd.file_no,
+           fd.phy_path
+        FROM file_mst fm join file_dtl fd on fm.file_id = fd.file_id
+        WHERE fm.file_id = #{fileId}  
+        <if test="file_no != null and file_no != ''">
+            AND fm.file_no = #{fileNo}  	
+        </if>
+        ORDER BY file_no ASC
+        LIMIT 1
+    </select>
+
+    <select id="selectFiles" parameterType="cstMap" resultType="cstMap">
+        SELECT /*selectFiles */
+           fd.file_id,
+           fd.real_file_name,
+           fd.file_name,
+           fd.reg_dtm,
+           fd.web_path,
+           fd.file_no,
+           fd.phy_path
+        FROM file_mst fm join file_dtl fd on fm.file_id = fd.file_id
+        WHERE fm.file_id = #{fileId}  
+        ORDER BY file_no ASC
+    </select>
+
+    <select id="getMaxFileNo" parameterType="String" resultType="java.lang.Integer">
+        SELECT /*selectFiles */
+            (CASE WHEN ISNULL(max(file_no)) THEN '0'
+                ELSE max(file_no) END
+            ) as file_no 
+        FROM file_dtl 
+        where file_id = #{fileId} 
+    </select>
+
+    <insert id="insertFileMst" parameterType="cstMap">
+        INSERT /*insertFileMst */ INTO file_mst
+            (
+                file_id,
+                reg_id,
+                reg_ip,
+                reg_dtm
+            ) VALUES
+            (
+                #{fileId},
+                #{regId},
+                #{regIp},
+                sysdate()
+            )       
+    </insert>
+
+    <update id="updateFileMst" parameterType="cstMap">
+        UPDATE /*updateFileMst */ file_mst SET 
+            mod_id = #{modId},
+            mod_ip = #{modIp},
+            mod_dtm = sysdate()    
+        WHERE file_id = #{fileId}         
+    </update>
+
+     <insert id="insertFileDtl" parameterType="cstMap">
+        INSERT /*insertFileMst */ INTO file_dtl
+            (
+                file_id,
+                real_file_name,
+                file_name,
+                reg_dtm,
+                web_path,
+                file_no,
+                phy_path,
+                reg_id,
+                reg_ip
+            ) SELECT
+                A.file_id,
+                A.real_file_name,
+                A.file_name,
+                A.reg_dtm,
+                A.web_path,
+                A.file_no,
+                A.phy_path,
+                A.reg_id,
+                A.reg_ip
+            FROM(
+                <foreach collection="fileList" item="list" index="index" open="" close="" separator="UNION ALL">
+                SELECT
+                    #{list.fileId} AS file_id,
+                    #{list.realFileName} AS real_file_name,
+                    #{list.fileName} AS file_name,
+                    sysdate() AS reg_dtm,
+                    #{list.webPath} AS web_path,
+                    #{list.fileNo} AS file_no,
+                    #{list.phyPath} phy_path,
+                    #{list.regId} AS reg_id,
+                    #{list.regIp} AS reg_ip
+                </foreach>
+            ) A
+    </insert>
+
+    <delete id="deleteFileMst" parameterType="String">
+        DELETE /*deleteFileMst */
+        FROM  file_mst
+        WHERE file_id = #{fileId}
+    </delete>
+
+    <delete id="deleteFileDtl" parameterType="cstMap">
+        DELETE /*deleteFileDtl */
+        FROM file_dtl
+        WHERE file_id = #{fileId}  
+        AND file_no in ( #{fileNo} )     
+    </delete>
+
+
+</mapper>

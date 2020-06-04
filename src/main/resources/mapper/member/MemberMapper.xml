@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="demo.front.member.mapper.MemberMapper">
+    <sql id="memberWhereSql">
+   		<where>
+			<if test="memberId != null and memberId != ''">
+				AND A.member_id LIKE CONCAT('%', #{memberId}, '%')
+			</if>
+            <if test="memberName != null and memberName != ''">
+				AND A.member_name LIKE CONCAT('%', #{memberName}, '%')
+			</if>
+		</where>
+   	</sql>
+
+    <select id="selectMemberList" parameterType="cstMap" resultType="cstMap">
+       /*selectMemberList */
+       WITH CTE_TABLE AS
+       (
+           SELECT ROW_NUMBER() OVER(ORDER BY A.no DESC) AS RNUM
+                ,A.*
+            FROM member A
+            <include refid="memberWhereSql" />
+       )
+      
+       SELECT 
+            TBL.*
+            ,(SELECT COUNT(*) FROM CTE_TABLE) AS TOTAL_CNT
+        FROM(
+            SELECT
+                CT.RNUM 
+                ,CT.no
+                ,CT.member_id
+                ,CT.member_pass
+                ,CT.member_name
+                ,CT.reg_dtm 
+            FROM CTE_TABLE CT 
+       )TBL
+       WHERE TBL.RNUM BETWEEN #{firstIndex} + 1 AND #{firstIndex} + #{cntPage}
+    </select>
+
+    <select id="selectMemberDtl" parameterType="cstMap" resultType="cstMap">
+        SELECT /*selectMemberDtl */
+            no
+            ,member_id
+            ,member_name
+            ,member_type
+            ,reg_dtm
+            ,file_id
+          FROM member 
+         WHERE no = #{no}  
+    </select>
+
+    <select id="selectMember" parameterType="String" resultType="cstMap">
+        SELECT /*selectMember */
+            member_id
+            ,member_pass
+            ,member_name
+            ,member_type
+            ,reg_dtm
+          FROM member 
+         WHERE member_id = #{memberId}  
+    </select>
+
+    <insert id="insertMember" parameterType="cstMap">
+        INSERT /*insertMember */ INTO member
+            (
+                member_id
+                ,member_pass
+                ,member_name
+                ,reg_dtm
+                ,member_type
+                ,file_id
+            ) VALUES
+            (
+                #{memberId}
+                ,#{memberPass}
+                ,#{memberName}
+                ,sysdate()
+                ,#{memberType}
+                ,#{fileId, jdbcType=VARCHAR}
+            )       
+    </insert>
+
+    <update id="updateMember" parameterType="cstMap">
+        UPDATE /*updateMember */ member SET 
+            member_name = #{memberName, jdbcType=VARCHAR},
+            member_type = #{memberType, jdbcType=VARCHAR},
+            file_id = #{fileId, jdbcType=VARCHAR},
+            mod_dtm = sysdate()    
+        WHERE no = #{no}
+    </update>
+
+</mapper>

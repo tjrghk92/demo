@@ -1,0 +1,14 @@
+input[type=file]{display:none;}
+.btnArea{overflow: hidden;}
+p.tempBtn{position: relative;float: left;background: #f6f6f6;border: 1px solid #ddd;padding: 4px 30px 4px 30px;line-height: 32px;font-size: 16px;font-weight: 300; margin-left: 10px;}
+p.tempBtn:first-child{margin-left: 0;}
+p.tempBtn a{position: absolute;right: 11px;margin-top: -12px;text-decoration: none;}
+img.tempImg{max-width: 500px;height: 200px;margin-left: 10px;}
+img.tempImg:first-child{margin-left: 0;}
+   
+    
+    
+    
+    
+    
+    

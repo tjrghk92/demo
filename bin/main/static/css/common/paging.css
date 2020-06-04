@@ -1,0 +1,6 @@
+.paging{margin-top:16px; text-align:center}
+.paging li{display:inline-block; margin-right:9px; width:30px; height:30px; background:#EFEFEF}
+.paging li a{color:#000; font-size:11px; line-height:30px;}
+.paging li a:link{text-decoration: none;}
+.paging li.active{font-weight:bold}
+.paging li:last-child{margin-right:0px}

@@ -1,0 +1,40 @@
+spring:
+    mvc: 
+        view:
+            prefix: /WEB-INF/jsp/
+            suffix: .jsp
+
+    datasource:
+        hikari:
+            test:
+                driverClassName: com.mysql.cj.jdbc.Driver
+                jdbc-url: jdbc:mysql://172.17.17.62:3306/test?characterEncoding=UTF-8&serverTimezone=UTC
+                username: test
+                password: tjrghk92
+ 
+    jmx:
+        enabled: false
+  
+    servlet:
+        multipart:
+            max-file-size: 1000000000
+            max-request-size: 1000000000
+
+logging.config: classpath:config/logback.xml
+
+common:
+    file:
+        ##첨부 용량 30MB
+        atchFileSize: 31457280
+        ##이미지 용량 10MB
+        imgFileSize: 10485760
+        ##동영상 용량 100MB
+        videoFileSize: 104857600
+        ##파일 확장자
+        atchExtn: jpg,jpeg,gif,png,bmp,pdf,ppt,pptx,xls,xlsx,doc,docx,hwp,txt,zip
+        ##이미지 확장자
+        imgExtn: jpg,jpeg,gif,png,bmp
+        ##동영상 확장자
+        videoExtn: mp4,wmv,avi,mkv
+        ##파일 업로드 경로
+        uploadPath: D:\\BOOT\\uploadfiles\\
