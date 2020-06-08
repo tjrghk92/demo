@@ -34989,6 +34989,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var _css_common_paging_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(470);
 /* harmony import */ var _css_common_paging_css__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_css_common_paging_css__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var query_string__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(475);
+/* harmony import */ var query_string__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(query_string__WEBPACK_IMPORTED_MODULE_7__);
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -35025,6 +35027,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 
 
+
 var List = /*#__PURE__*/function (_Component) {
   _inherits(List, _Component);
 
@@ -35036,13 +35039,18 @@ var List = /*#__PURE__*/function (_Component) {
     _classCallCheck(this, List);
 
     _this = _super.call(this, props);
+    var query = query_string__WEBPACK_IMPORTED_MODULE_7___default.a.parse(location.search);
     _this.state = {
       loading: false,
       ItemList: [],
       param: {
-        memberId: "",
-        memberName: "",
-        pageIndex: 1
+        memberId: query.memberId || "",
+        memberName: query.memberName || "",
+        pageIndex: parseInt(query.pageIndex) || 1
+      },
+      temp: {
+        memberId: query.memberId || "",
+        memberName: query.memberName || ""
       }
     };
     _this.onChange = _this.onChange.bind(_assertThisInitialized(_this));
@@ -35059,7 +35067,7 @@ var List = /*#__PURE__*/function (_Component) {
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps, prevState) {
-      if (prevState.param !== this.state.param) {
+      if (prevState.param.pageIndex !== this.state.param.pageIndex) {
         this.loadItem();
       }
     }
@@ -35110,19 +35118,20 @@ var List = /*#__PURE__*/function (_Component) {
     key: "onChange",
     value: function onChange(e) {
       var tempParam = {
-        memberId: this.state.param.memberId,
-        memberName: this.state.param.memberName,
-        pageIndex: this.state.param.pageIndex
+        memberId: this.state.temp.memberId,
+        memberName: this.state.temp.memberName
       };
       Object.assign(tempParam, _defineProperty({}, e.target.name, e.target.value));
       this.setState({
-        param: tempParam
+        temp: tempParam
       });
     }
   }, {
     key: "onSubmit",
     value: function onSubmit(e) {
       e.preventDefault();
+      this.state.param = this.state.temp;
+      this.state.param.pageIndex = 1;
       this.loadItem();
     }
   }, {
@@ -35144,11 +35153,11 @@ var List = /*#__PURE__*/function (_Component) {
     value: function render() {
       var _this$state = this.state,
           ItemList = _this$state.ItemList,
-          pageMap = _this$state.pageMap;
-      var _this$state$param = this.state.param,
-          memberId = _this$state$param.memberId,
-          memberName = _this$state$param.memberName,
-          pageIndex = _this$state$param.pageIndex;
+          pageMap = _this$state.pageMap,
+          param = _this$state.param;
+      var _this$state$temp = this.state.temp,
+          memberId = _this$state$temp.memberId,
+          memberName = _this$state$temp.memberName;
       var onChange = this.onChange,
           onSubmit = this.onSubmit;
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h4", null, "\uD68C\uC6D0 \uB9AC\uC2A4\uD2B8"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("form", {
@@ -35166,11 +35175,12 @@ var List = /*#__PURE__*/function (_Component) {
       })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
         type: "submit"
       }, "\uC804\uC1A1"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_listItem__WEBPACK_IMPORTED_MODULE_2__["default"], {
-        list: ItemList
+        list: ItemList,
+        param: param
       }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "paging"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_js_pagination__WEBPACK_IMPORTED_MODULE_3___default.a, {
-        activePage: pageIndex,
+        activePage: param.pageIndex,
         itemsCountPerPage: typeof pageMap === "undefined" ? 0 : parseInt(pageMap.cntPage),
         totalItemsCount: typeof pageMap === "undefined" ? 0 : parseInt(pageMap.totalCnt),
         pageRangeDisplayed: typeof pageMap === "undefined" ? 0 : parseInt(pageMap.pageSize),
@@ -37072,10 +37082,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(51);
+/* harmony import */ var query_string__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(475);
+/* harmony import */ var query_string__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(query_string__WEBPACK_IMPORTED_MODULE_2__);
+
 
 
 
 var listItem = function listItem(props) {
+  var param = query_string__WEBPACK_IMPORTED_MODULE_2___default.a.stringify(props.param);
+  param = encodeURIComponent(param);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("ul", {
     className: "list_member"
   }, props.list.map(function (ItemList, index) {
@@ -37083,7 +37098,7 @@ var listItem = function listItem(props) {
       className: "list",
       key: index
     }, "\uC544\uC774\uB514 ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_1__["Link"], {
-      to: '/member/write?no=' + ItemList.no
+      to: '/member/write?no=' + ItemList.no + "&rtnParam=" + param
     }, ItemList.memberId), " \uC774\uB984 ", ItemList.memberName, " \uAC00\uC785\uC77C ", ItemList.regDtm);
   }));
 };
@@ -51472,15 +51487,16 @@ function toComment(sourceMap) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(63);
-/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
-/* harmony import */ var query_string__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(475);
-/* harmony import */ var query_string__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(query_string__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var _common_fileupload__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(479);
-/* harmony import */ var core_js_stable__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(95);
-/* harmony import */ var core_js_stable__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(core_js_stable__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(469);
-/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var react_router_dom__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(51);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(63);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_2__);
+/* harmony import */ var query_string__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(475);
+/* harmony import */ var query_string__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(query_string__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var _common_fileupload__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(479);
+/* harmony import */ var core_js_stable__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(95);
+/* harmony import */ var core_js_stable__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(core_js_stable__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(469);
+/* harmony import */ var regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(regenerator_runtime_runtime__WEBPACK_IMPORTED_MODULE_6__);
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -51516,6 +51532,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 
 
+
 var Write = /*#__PURE__*/function (_Component) {
   _inherits(Write, _Component);
 
@@ -51527,11 +51544,13 @@ var Write = /*#__PURE__*/function (_Component) {
     _classCallCheck(this, Write);
 
     _this = _super.call(this, props);
-    var query = query_string__WEBPACK_IMPORTED_MODULE_2___default.a.parse(location.search);
+    var query = query_string__WEBPACK_IMPORTED_MODULE_3___default.a.parse(location.search);
+    var rtnParam = decodeURIComponent(query.rtnParam);
     _this.state = {
       csrf: document.querySelector("#csrf").value,
       Item: {},
-      no: query.no
+      no: query.no,
+      rtnParam: rtnParam
     };
     _this.onChange = _this.onChange.bind(_assertThisInitialized(_this));
     _this.handleClick = _this.handleClick.bind(_assertThisInitialized(_this));
@@ -51560,7 +51579,7 @@ var Write = /*#__PURE__*/function (_Component) {
             switch (_context.prev = _context.next) {
               case 0:
                 _context.next = 2;
-                return axios__WEBPACK_IMPORTED_MODULE_1___default()({
+                return axios__WEBPACK_IMPORTED_MODULE_2___default()({
                   method: 'get',
                   url: './api/write',
                   params: {
@@ -51659,7 +51678,7 @@ var Write = /*#__PURE__*/function (_Component) {
       })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "\uAC00\uC785\uC77C : "), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, Item.regDtm)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
         type: "button",
         onClick: handleClick
-      }, "\uD30C\uC77C\uC5C5\uB85C\uB4DC"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_common_fileupload__WEBPACK_IMPORTED_MODULE_3__["default"], {
+      }, "\uD30C\uC77C\uC5C5\uB85C\uB4DC"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_common_fileupload__WEBPACK_IMPORTED_MODULE_4__["default"], {
         maxSize: maxSize,
         extns: extns,
         maxFile: 3,
@@ -51667,11 +51686,9 @@ var Write = /*#__PURE__*/function (_Component) {
         fileId: Item.fileId
       }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
         type: "submit"
-      }, "\uC218\uC815"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
-        href: "/member/logout"
-      }, "\uB85C\uADF8\uC544\uC6C3"), " ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
-        href: "/"
-      }, "\uBA54\uC778\uC73C\uB85C")));
+      }, "\uC218\uC815"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_1__["Link"], {
+        to: "/member/list?" + this.state.rtnParam
+      }, "\uB3CC\uC544\uAC00\uAE30")));
     }
   }]);
 

@@ -7,20 +7,28 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
 import '../../../css/common/paging.css';
+import queryString from 'query-string';
 
 class List extends Component {
   constructor(props) {
       super(props);
+
+    let query = queryString.parse(location.search);
 
     this.state = {
       loading: false,
       ItemList: [],
       
       param : {
-        memberId : "",
-        memberName : "",
-        pageIndex : 1
+        memberId : query.memberId || "",
+        memberName : query.memberName || "",
+        pageIndex : parseInt(query.pageIndex) || 1
       },
+
+      temp : {
+        memberId : query.memberId || "",
+        memberName : query.memberName || "",
+      }
       
     };
 
@@ -35,7 +43,7 @@ class List extends Component {
   }
 
   componentDidUpdate(prevProps, prevState){
-    if(prevState.param !== this.state.param){
+    if(prevState.param.pageIndex !== this.state.param.pageIndex){
       this.loadItem(); 
     }
   }
@@ -61,9 +69,8 @@ class List extends Component {
   
   onChange(e) {
     var tempParam = {
-      memberId : this.state.param.memberId,
-      memberName : this.state.param.memberName,
-      pageIndex : this.state.param.pageIndex
+      memberId : this.state.temp.memberId,
+      memberName : this.state.temp.memberName,
     };
 
     Object.assign(tempParam, {
@@ -71,13 +78,14 @@ class List extends Component {
     });
     
     this.setState({
-      param : tempParam,
+      temp : tempParam,
     });
   }
   
   onSubmit(e) {
     e.preventDefault();
-
+    this.state.param = this.state.temp;
+    this.state.param.pageIndex = 1;
     this.loadItem();
     
   }
@@ -97,10 +105,10 @@ class List extends Component {
   }
 
   render() {
-    const {ItemList, pageMap} = this.state;
-    const {memberId, memberName, pageIndex} = this.state.param;
+    const {ItemList, pageMap, param} = this.state;
+    const {memberId, memberName} = this.state.temp;
     const {onChange, onSubmit} = this;
-    
+   
     return (
       <div>
         <h4>회원 리스트</h4>
@@ -116,10 +124,10 @@ class List extends Component {
           <div><button type="submit">전송</button></div>
         </form>
         <div>
-          <ListItem list={ItemList}/>
+          <ListItem list={ItemList} param={param}/>
           <div className="paging">
             <Pagination
-                activePage={pageIndex}
+                activePage={param.pageIndex}
                 itemsCountPerPage={typeof pageMap === "undefined" ? 0 : parseInt(pageMap.cntPage)}
                 totalItemsCount={typeof pageMap === "undefined" ? 0 : parseInt(pageMap.totalCnt)}
                 pageRangeDisplayed={typeof pageMap === "undefined" ? 0 : parseInt(pageMap.pageSize)}

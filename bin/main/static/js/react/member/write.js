@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 import queryString from 'query-string';
 import Fileupload from '../../common/fileupload';
@@ -13,11 +14,13 @@ class Write extends Component {
     super(props);
 
     let query = queryString.parse(location.search);
-   
+    let rtnParam = decodeURIComponent(query.rtnParam);
+
     this.state = {
       csrf : document.querySelector("#csrf").value,
       Item: {},
-      no: query.no
+      no: query.no,
+      rtnParam : rtnParam
     };
 
     this.onChange = this.onChange.bind(this);
@@ -115,7 +118,7 @@ class Write extends Component {
         <div>
     
         </div>
-        <div><a href = "/member/logout">로그아웃</a> <a href = "/">메인으로</a></div>
+        <div><Link to={"/member/list?" + this.state.rtnParam}>돌아가기</Link></div>
       </div>
     );
   }

@@ -5,6 +5,7 @@ module.exports = {
     entry: {
         main: './main/main.jsx',
         member: './member/member.jsx',
+        menu: './menu/menu.jsx',
     },
     devtool: 'sourcemaps',
     cache: true,
