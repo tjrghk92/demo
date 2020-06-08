@@ -37,4 +37,4 @@ common:
         ##동영상 확장자
         videoExtn: mp4,wmv,avi,mkv
         ##파일 업로드 경로
-        uploadPath: D:\\BOOT\\uploadfiles\\
+        uploadPath: D:\\DEMO\\uploadfiles\\
