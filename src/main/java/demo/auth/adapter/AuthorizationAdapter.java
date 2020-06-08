@@ -20,21 +20,27 @@ public class AuthorizationAdapter {
     @Autowired
     PasswordEncoder passwordEncoder;
     
-    public UsernamePasswordAuthenticationToken login(String username, String password) {
-        UserVo user = memberService.loadUserByUsername(username);
+    public UsernamePasswordAuthenticationToken login(String username, String password) throws BadCredentialsException {
+        UsernamePasswordAuthenticationToken result = null;
+
+        try {
+            UserVo user = memberService.loadUserByUsername(username);
         
-        if(!passwordEncoder.matches(password, user.getPassword())){
-            throw new BadCredentialsException("password not equal");
+            if(!passwordEncoder.matches(password, user.getPassword())){
+                throw new BadCredentialsException("password not equal");
+            }
+
+            result = new UsernamePasswordAuthenticationToken(username, password, user.getAuthorities());
+            user.setPassword("");
+            result.setDetails(user);
+        } catch (Exception e) {
+            throw new BadCredentialsException(e.getMessage());
         }
-        
-        UsernamePasswordAuthenticationToken result = new UsernamePasswordAuthenticationToken(username, password, user.getAuthorities());
-        user.setPassword("");
-        result.setDetails(user);
-       
+    
         return result;
     }
 
-    public boolean supportsAuthClass(Class<?> authentication){
+    public boolean supportsAuthClass(Class<?> authentication) {
         return authentication.equals(UsernamePasswordAuthenticationToken.class);
     }
 

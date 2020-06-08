@@ -1,7 +1,6 @@
 package demo.front.member.web;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
 
 import demo.auth.adapter.UserAdp;
 import demo.custom.adapter.MapAdp;
@@ -62,10 +61,33 @@ public class MemberController {
          ModelAndView mav = new ModelAndView("jsonView");
  
          try {
-             CstMap rtnMap =  memberService.selectMemberList(adapter.getCstMap());
-             mav.addObject("rtnMap", rtnMap);
+            CstMap rtnMap =  memberService.selectMemberList(adapter.getCstMap());
+            mav.addObject("rtnMap", rtnMap);
          } catch (Exception e) {
-             e.printStackTrace();
+            e.printStackTrace();
+         }
+         return mav;
+     }
+
+     /* 회원 수정 */
+     @RequestMapping("/update")
+     public ModelAndView update(MapAdp adapter, MultipartHttpServletRequest multiRequest) throws Exception  {
+        ModelAndView mav = new ModelAndView("front/blank/blank");
+ 
+         try {
+            fileService.deleteFiles(adapter.getCstMap(),"atchFileImg");
+            fileService.insertFiles(adapter.getCstMap(),"atchFileImg", multiRequest);
+            int rtnCnt =  memberService.updateMember(adapter.getCstMap());
+            if(rtnCnt > 0){
+                mav.addObject("url", "./write?no=" + adapter.getCstMap().getString("no"));
+                mav.addObject("msg", "수정 되었습니다.");
+             }else{
+                mav.addObject("url", "./write?no=" + adapter.getCstMap().getString("no"));
+                mav.addObject("msg", "수정이 실패하였습니다.");
+             }
+         } catch (Exception e) {
+             mav.addObject("url", "./write?no=" + adapter.getCstMap().getString("no"));
+             mav.addObject("msg", "수정이 실패하였습니다.");
          }
          return mav;
      }
@@ -94,11 +116,10 @@ public class MemberController {
          ModelAndView mav = new ModelAndView("front/blank/blank");
 
          try {
-            fileService.insertFiles(adapter.getCstMap(), multiRequest);
+            fileService.insertFiles(adapter.getCstMap(), "atchFileImg", "image", multiRequest);
             int rtnCnt = memberService.insertMember(adapter.getCstMap());
         
             if(rtnCnt > 0){
-               
                mav.addObject("url", "./login");
                mav.addObject("msg", "회원가입 되었습니다.");
             }else{
@@ -113,7 +134,7 @@ public class MemberController {
 
     /* 로그인 */
     @RequestMapping("/login")
-    public ModelAndView login(MapAdp adapter, HttpServletRequest request) throws Exception  {
+    public ModelAndView login(MapAdp adapter) throws Exception  {
         CstMap cstMap = adapter.getCstMap();
         ModelAndView mav = new ModelAndView("front/member/index");
 

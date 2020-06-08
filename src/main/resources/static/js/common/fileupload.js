@@ -1,5 +1,6 @@
 
 import React, { Component, Fragment} from 'react';
+import axios from 'axios';
 import '../../css/common/fileupload.css';
 
 class fileupload extends Component {
@@ -7,15 +8,37 @@ class fileupload extends Component {
         super(props);
 
         this.state = {
-           file : null
+			FileItem : [],
+			atchName : props.atchName || "atchFile"
         };
-
+		
 		this.fileChange = this.fileChange.bind(this);
+		this.fileInit = this.fileInit.bind(this);
     }
 	
 	componentDidMount() {
 		this.fileChange();
 	}
+
+	componentDidUpdate(prevProps, prevState){
+		if(prevProps.fileId !== this.props.fileId){
+			this.fileInit(this.props.fileId);
+		}
+	}
+	async fileInit(fileId) {
+		await axios({
+			method: 'get',
+			url: '/file/api/selectFiles',
+			params: {
+				fileId: fileId
+			}
+		  }).then(({data}) => {
+			this.setState({ 
+				FileItem: data.fileMap
+			});   
+		  });
+	}
+
     fileChange() {
 		let maxSize = this.props.maxSize;
 		let extns = this.props.extns;
@@ -60,16 +83,16 @@ class fileupload extends Component {
 							clone = obj.cloneNode();
 							clone.value = "";
 							
-							let count = document.querySelector(".fileArea").childElementCount;
-							obj.name = 'atchFileImg' + count;
-							obj.className = 'atchFileImg' + count;
+							let count = document.querySelector(".btnArea").childElementCount;
+							obj.name = this.state.atchName + count;
+							obj.className = this.state.atchName + count;
 
 							document.querySelector(".tempArea").appendChild(clone);
 							document.querySelector(".fileArea").appendChild(obj);
 
 							let btn = document.createElement("p");
 							btn.className = "tempBtn"
-							btn.classList.add('atchFileImg' + count);
+							btn.classList.add(this.state.atchName + count);
 							btn.innerHTML = fileName + "<a href='#' class='delBtn'>x</a>";
 							document.querySelector(".btnArea").appendChild(btn);
 						
@@ -79,7 +102,7 @@ class fileupload extends Component {
 							reader.onloadend = () => {
 								img.src = reader.result;
 								img.className = "tempImg";
-								img.classList.add('atchFileImg' + count);
+								img.classList.add(this.state.atchName + count);
 							}
 							reader.readAsDataURL(obj.files[0]);
 
@@ -98,11 +121,18 @@ class fileupload extends Component {
 
 		document.addEventListener('click', function(e){
 			let delBtn = e.target;
+			
 			if(delBtn.className.indexOf('delBtn') > -1){
-				console.log(e.target.parentNode.classList)
-				let header = document.querySelectorAll('.' + delBtn.parentNode.classList[1]);
-				header.forEach((value) => {
-					value.parentNode.removeChild(value);
+				let dataNo = delBtn.parentNode.dataset.no;
+				
+				if(typeof dataNo != "undefined"){
+					let atchNo = document.querySelector(".configArea input[name$=No]")
+					atchNo.value === "" ? atchNo.value = dataNo : atchNo.value += "," + dataNo;   	
+				}
+
+				let elms = document.querySelectorAll('.' + delBtn.parentNode.classList[1]);
+				elms.forEach((elm) => {
+					elm.parentNode.removeChild(elm);
 				});
 			}
 		});
@@ -110,17 +140,27 @@ class fileupload extends Component {
 	}
 
     render() {
-		
+		const {FileItem} = this.state;
         return (
 			<Fragment>
+				<div className="configArea">
+					<input type="hidden" name={this.state.atchName + "Id"} className={this.state.atchName + "Id"} value={typeof FileItem[0] === "undefined" ? "" :  FileItem[0].fileId}/>
+					<input type="hidden" name={this.state.atchName + "No"} className={this.state.atchName + "No"}/>
+				</div>
 				<div className="btnArea">
+					{FileItem.map((Item, index) => (
+						<p key={index} data-no={Item.fileNo} className={"tempBtn " + this.state.atchName + index}>{Item.realFileName}<a href="#" className={"delBtn"}>x</a></p>
+					))}
 				</div>
 				<div className="tempArea">
-					<input type="file" name="tempFile"  className="tempFile"/>
+					<input type="file" name="tempFile" className="tempFile"/>
 				</div>
 				<div className="fileArea">
 				</div>
 				<div className="previewArea">
+					{FileItem.map((Item, index) => (
+						<img key={index} src={Item.webPath} className={"tempImg " + this.state.atchName + index}/>
+					))}
 				</div>
 			</Fragment>
         );

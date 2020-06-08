@@ -52,16 +52,28 @@ public class FileServiceImpl implements FileService {
         return fileMapper.selectFiles(cstMap);
     }
     
+    
+    public void insertFiles(CstMap cstMap, String atchId, MultipartHttpServletRequest multiRequest) throws Exception {
+        this.insertFiles(cstMap, atchId, null, multiRequest);
+    }
+
     @Override
-    public void insertFiles(CstMap cstMap, MultipartHttpServletRequest multiRequest) throws Exception {
-		String fileId = cstMap.getString("fileId");
+    public void insertFiles(CstMap cstMap, String atchName, String atchKind, MultipartHttpServletRequest multiRequest) throws Exception {
+        String fileId = "";
+
+        if(atchName != null){
+            fileId = cstMap.getString(atchName + "Id");
+        }else{
+            fileId = cstMap.getString("atchfileId");
+            atchName = "atchFile";
+        }
 		
 		int maxFileSeq = 0;
         List<CstMap> fileList = null;
        
         Map<String, MultipartFile> files = multiRequest.getFileMap();
         if(!files.isEmpty()){
-            fileList = this.fileCreate(files, null, "user", "image", "atchFile");
+            fileList = this.fileCreate(files, null, "user", atchKind, atchName);
         }
 		
 		if(fileList != null && fileList.size() > 0)
@@ -76,7 +88,6 @@ public class FileServiceImpl implements FileService {
                                                     ));
             }else{
                 fileId = seqGenService.newSeqGenId("file");
-                cstMap.put("fileId", fileId);
                 fileMapper.insertFileMst(new CstMap(ImmutableMap.builder()
                                                         .put("fileId", fileId)
                                                         .put("regId", cstMap.getString("memberId"))
@@ -90,31 +101,171 @@ public class FileServiceImpl implements FileService {
                 fileMap.put("regId", cstMap.getString("memberId"));
                 fileMap.put("regIp", cstMap.getString("ip"));
             }
-
+            
             fileMapper.insertFileDtl(new CstMap(ImmutableMap.builder().put("fileList",fileList).build()));
-		}
+        }
+
+        cstMap.put("fileId", fileId);
     }
 
     @Override
-    public void deleteFiles(CstMap cstMap) throws Exception {
-		String fileId = cstMap.getString("fileId");
-		String fileNo = cstMap.getString("fileNo");
-		
-		if(!"".equals(fileId)){
-			if(!"".equals(fileNo)){
-                fileMapper.deleteFileDtl(new CstMap(ImmutableMap.builder()
-                                                        .put("fileId", fileId)
-                                                        .put("fileNo",fileNo).build()
-                                                    ));
-				// 파일 상세에 등록된 파일 갯수 조회
-				int fileCnt = this.getMaxFileNo(fileId);
-				
-				if (fileCnt == 0) 
-				{
-					fileMapper.deleteFileMst(fileId);
-				}	
-			}			
+    public void deleteFiles(CstMap cstMap, String atchName) throws Exception {
+        String fileId = "", fileNo = "";
+
+        if(atchName != null){
+            fileId = cstMap.getString(atchName + "Id");
+        }else{
+            fileId = cstMap.getString("atchfileId");
         }
+
+        if(atchName != null){
+            fileNo = cstMap.getString(atchName + "No");
+        }else{
+            fileNo = cstMap.getString("atchfileNo");
+        }
+		
+		if(!"".equals(fileId) && !"".equals(fileNo) ){
+            fileMapper.deleteFileDtl(new CstMap(ImmutableMap.builder()
+                                                    .put("fileId", fileId)
+                                                    .put("fileNo",fileNo.trim().split(",")).build()
+                                                ));
+            // 파일 상세에 등록된 파일 갯수 조회
+            int fileCnt = this.getMaxFileNo(fileId);
+            
+            if (fileCnt == 0) {
+                fileId = null;
+                fileMapper.deleteFileMst(fileId);
+            }
+            
+            if(atchName != null){
+                cstMap.put(atchName + "Id", fileId);
+            }else{
+                cstMap.put("atchfileId", fileId);
+            }
+        }
+    }
+
+    public List<CstMap> fileCreate(Map<String, MultipartFile> files, String storePath, String folder, String atchKind, String atchName ) throws Exception {
+       
+        String pyhPath = "";
+       
+        if ("".equals(storePath) || storePath == null) 
+		{
+			pyhPath = propertiesConfig.getData("file", "uploadPath");
+		} 
+		else 
+		{
+			pyhPath = storePath;
+		}
+
+        Iterator<Entry<String, MultipartFile>> itr = files.entrySet().iterator();
+        MultipartFile file = null;
+        
+        Calendar c = Calendar.getInstance();
+        Tika tika = new Tika();
+       
+        long _size = 0;
+        String realFileNm = "";
+        String mimeType = "";
+        String fileExtn = "";
+
+        long fileSize = 0;
+	    String[] checkFileExt = null;
+        boolean isFileExt = false; 
+
+        List<CstMap> fileList = new ArrayList<CstMap>();
+        CstMap fileMap = null;
+
+        while (itr.hasNext()) 
+		{    
+            Entry<String, MultipartFile> entry = itr.next();
+            if (entry.getKey().indexOf(atchName) > -1){
+                file = entry.getValue();
+
+                realFileNm = file.getOriginalFilename();
+                fileExtn = realFileNm.substring(realFileNm.lastIndexOf(".") + 1).toLowerCase(Locale.ENGLISH);
+                _size = file.getSize();
+                mimeType = tika.detect(file.getInputStream());
+                
+                String filePyhPath = "";
+
+                if(folder != null && !folder.equals("")){
+                    filePyhPath += "upload" + File.separator + folder + File.separator;
+                }else{
+                    filePyhPath += "upload" + File.separator;
+                }
+
+                if (mimeType.indexOf("image") > -1){
+                    fileSize = Integer.parseInt(propertiesConfig.getData("file", "imgFileSize"));
+                    checkFileExt = propertiesConfig.getData("file", "imgExtn").split(",");
+                    filePyhPath += "image";
+                }else if(mimeType.indexOf("video") > -1){
+                    fileSize = Integer.parseInt(propertiesConfig.getData("file", "videoFileSize"));
+                    checkFileExt = propertiesConfig.getData("file", "videoExtn").split(",");
+                    filePyhPath += "video";
+                }else{
+                    fileSize = Integer.parseInt(propertiesConfig.getData("file", "atchFileSize"));
+                    checkFileExt = propertiesConfig.getData("file", "atchExtn").split(",");
+                    filePyhPath += "atch";
+                }
+
+                if(atchKind != null){
+                    if(mimeType.indexOf(atchKind) == -1){
+                        throw new FileUploadException("허용되지 않은 파일입니다.");
+                    }
+                }
+
+                if (_size > (long) fileSize) 
+                {
+                    throw new FileUploadException("최대 첨부용량을 초과하셨습니다.");
+                }
+
+                if (checkFileExt != null)
+                {
+                    for (int q = 0; q < checkFileExt.length; q++)
+                    {
+                        if (checkFileExt[q].trim().toLowerCase(Locale.ENGLISH).equals(fileExtn.toLowerCase(Locale.ENGLISH)))
+                        {
+                            isFileExt = true;
+                            break;
+                        }
+                    }
+                }
+
+                if(!isFileExt){
+                    throw new FileUploadException("해당 파일 확장명은 등록하실 수 없습니다.");
+                }
+                
+                filePyhPath = pyhPath + filePyhPath + File.separator + c.get(Calendar.YEAR) +  File.separator + (c.get(Calendar.MONTH) + 1);
+                File saveFolder = new File(FilterUtil.filePathBlackList(filePyhPath));
+
+                if (!saveFolder.exists() || saveFolder.isFile()){
+                    saveFolder.mkdirs();
+                }
+                
+                String fileName = CommonUtil.getTimeStamp() + "." + fileExtn;
+                String realFileName = realFileNm;
+                String filePath = filePyhPath + File.separator + fileName;
+                String webPath = "";
+
+                webPath = File.separator + filePath.replace(pyhPath, "");
+                webPath = webPath.replaceAll("\\\\", "/");
+
+                fileMap = new CstMap(ImmutableMap.builder()
+                                                    .put("realFileName", realFileName)
+                                                    .put("fileName", fileName)
+                                                    .put("webPath", webPath)
+                                                    .put("phyPath",filePath).build());
+                fileList.add(fileMap);
+
+                file.transferTo(new File(FilterUtil.filePathBlackList(filePath)));
+            }
+        }
+        return fileList;
+    }
+
+    public int getMaxFileNo(String fileId) throws Exception {
+        return fileMapper.getMaxFileNo(fileId);
     }
 
     public List<CstMap> getUpdoadFileTemp(MultipartHttpServletRequest multiRequest) throws Exception {
@@ -172,8 +323,11 @@ public class FileServiceImpl implements FileService {
 
                         String filePyhPath = "";
 
-                        if(folder != null && !folder.equals(""))
-                            filePyhPath += folder + File.separator;
+                        if(folder != null && !folder.equals("")){
+                            filePyhPath += "upload" + File.separator + folder + File.separator;
+                        }else{
+                            filePyhPath += "upload" + File.separator;
+                        }
 
                         if (mimeType.indexOf("image") > -1){
                             filePyhPath += "image";
@@ -273,125 +427,7 @@ public class FileServiceImpl implements FileService {
         return null;
     }
 
-    public List<CstMap> fileCreate(Map<String, MultipartFile> files, String storePath, String folder, String atchKind, String atchName ) throws Exception {
-       
-        String pyhPath = "";
-       
-        if ("".equals(storePath) || storePath == null) 
-		{
-			pyhPath = propertiesConfig.getData("file", "uploadPath");
-		} 
-		else 
-		{
-			pyhPath = storePath;
-		}
-
-        Iterator<Entry<String, MultipartFile>> itr = files.entrySet().iterator();
-        MultipartFile file = null;
-        
-        Calendar c = Calendar.getInstance();
-        Tika tika = new Tika();
-       
-        long _size = 0;
-        String realFileNm = "";
-        String mimeType = "";
-        String fileExtn = "";
-
-        long fileSize = 0;
-	    String[] checkFileExt = null;
-        boolean isFileExt = false; 
-
-        List<CstMap> fileList = new ArrayList<CstMap>();
-        CstMap fileMap = null;
-
-        while (itr.hasNext()) 
-		{    
-            Entry<String, MultipartFile> entry = itr.next();
-            if (entry.getKey().indexOf(atchName) > -1){
-                file = entry.getValue();
-
-                realFileNm = file.getOriginalFilename();
-                fileExtn = realFileNm.substring(realFileNm.lastIndexOf(".") + 1).toLowerCase(Locale.ENGLISH);
-                _size = file.getSize();
-                mimeType = tika.detect(file.getInputStream());
-                
-                String filePyhPath = "";
-
-                if(folder != null && !folder.equals(""))
-                    filePyhPath += folder + File.separator;
-
-                if (mimeType.indexOf("image") > -1){
-                    fileSize = Integer.parseInt(propertiesConfig.getData("file", "imgFileSize"));
-                    checkFileExt = propertiesConfig.getData("file", "imgExtn").split(",");
-                    filePyhPath += "image";
-                }else if(mimeType.indexOf("video") > -1){
-                    fileSize = Integer.parseInt(propertiesConfig.getData("file", "videoFileSize"));
-                    checkFileExt = propertiesConfig.getData("file", "videoExtn").split(",");
-                    filePyhPath += "video";
-                }else{
-                    fileSize = Integer.parseInt(propertiesConfig.getData("file", "atchFileSize"));
-                    checkFileExt = propertiesConfig.getData("file", "atchExtn").split(",");
-                    filePyhPath += "atch";
-                }
-
-                if(atchKind != null){
-                    if(mimeType.indexOf(atchKind) == -1){
-                        throw new FileUploadException("허용되지 않은 파일입니다.");
-                    }
-                }
-
-                if (_size > (long) fileSize) 
-                {
-                    throw new FileUploadException("최대 첨부용량을 초과하셨습니다.");
-                }
-
-                if (checkFileExt != null)
-                {
-                    for (int q = 0; q < checkFileExt.length; q++)
-                    {
-                        if (checkFileExt[q].trim().toLowerCase(Locale.ENGLISH).equals(fileExtn.toLowerCase(Locale.ENGLISH)))
-                        {
-                            isFileExt = true;
-                            break;
-                        }
-                    }
-                }
-
-                if(!isFileExt){
-                    throw new FileUploadException("해당 파일 확장명은 등록하실 수 없습니다.");
-                }
-                
-                filePyhPath = pyhPath + filePyhPath + File.separator + c.get(Calendar.YEAR) +  File.separator + (c.get(Calendar.MONTH) + 1);
-                File saveFolder = new File(FilterUtil.filePathBlackList(filePyhPath));
-
-                if (!saveFolder.exists() || saveFolder.isFile()){
-                    saveFolder.mkdirs();
-                }
-                
-                String fileName = CommonUtil.getTimeStamp() + "." + fileExtn;
-                String realFileName = realFileNm;
-                String filePath = filePyhPath + File.separator + fileName;
-                String webPath = "";
-
-                webPath = File.separator + filePath.replace(pyhPath, "");
-                webPath = webPath.replaceAll("\\\\", "/");
-
-                fileMap = new CstMap(ImmutableMap.builder()
-                                                    .put("realFileName", realFileName)
-                                                    .put("fileName", fileName)
-                                                    .put("webPath", webPath)
-                                                    .put("phyPath",filePath).build());
-                fileList.add(fileMap);
-
-                file.transferTo(new File(FilterUtil.filePathBlackList(filePath)));
-            }
-        }
-        return fileList;
-    }
-
-    public int getMaxFileNo(String fileId) throws Exception {
-        return fileMapper.getMaxFileNo(fileId);
-    }
+    
     
    
  

@@ -35039,28 +35039,27 @@ var List = /*#__PURE__*/function (_Component) {
     _this.state = {
       loading: false,
       ItemList: [],
-      pageIndex: 1
-    };
-    _this.param = {
-      memberId: "",
-      memberName: ""
+      param: {
+        memberId: "",
+        memberName: "",
+        pageIndex: 1
+      }
     };
     _this.onChange = _this.onChange.bind(_assertThisInitialized(_this));
     _this.onSubmit = _this.onSubmit.bind(_assertThisInitialized(_this));
     _this.loadItem = _this.loadItem.bind(_assertThisInitialized(_this));
-
-    _this.loadItem();
-
     return _this;
   }
 
   _createClass(List, [{
     key: "componentDidMount",
-    value: function componentDidMount() {}
+    value: function componentDidMount() {
+      this.loadItem();
+    }
   }, {
     key: "componentDidUpdate",
     value: function componentDidUpdate(prevProps, prevState) {
-      if (this.state.pageIndex !== prevState.pageIndex) {
+      if (prevState.param !== this.state.param) {
         this.loadItem();
       }
     }
@@ -35079,9 +35078,9 @@ var List = /*#__PURE__*/function (_Component) {
                   method: 'get',
                   url: './api/list',
                   params: {
-                    pageIndex: this.state.pageIndex,
-                    memberId: this.param.memberId,
-                    memberName: this.param.memberName
+                    pageIndex: this.state.param.pageIndex,
+                    memberId: this.state.param.memberId,
+                    memberName: this.state.param.memberName
                   }
                 }).then(function (_ref) {
                   var data = _ref.data;
@@ -35110,24 +35109,33 @@ var List = /*#__PURE__*/function (_Component) {
   }, {
     key: "onChange",
     value: function onChange(e) {
-      this.setState(_defineProperty({}, e.target.name, e.target.value));
+      var tempParam = {
+        memberId: this.state.param.memberId,
+        memberName: this.state.param.memberName,
+        pageIndex: this.state.param.pageIndex
+      };
+      Object.assign(tempParam, _defineProperty({}, e.target.name, e.target.value));
+      this.setState({
+        param: tempParam
+      });
     }
   }, {
     key: "onSubmit",
     value: function onSubmit(e) {
       e.preventDefault();
-      Object.assign(this.param, {
-        memberId: this.state.memberId,
-        memberName: this.state.memberName
-      });
       this.loadItem();
     }
   }, {
     key: "handlePageChange",
     value: function handlePageChange(pageIndex) {
-      if (this.state.pageIndex !== pageIndex) {
-        this.setState({
+      if (this.state.param.pageIndex !== pageIndex) {
+        var tempParam = {
+          memberId: this.state.param.memberId,
+          memberName: this.state.param.memberName,
           pageIndex: pageIndex
+        };
+        this.setState({
+          param: tempParam
         });
       }
     }
@@ -35136,10 +35144,11 @@ var List = /*#__PURE__*/function (_Component) {
     value: function render() {
       var _this$state = this.state,
           ItemList = _this$state.ItemList,
-          pageMap = _this$state.pageMap,
-          memberId = _this$state.memberId,
-          memberName = _this$state.memberName,
-          pageIndex = _this$state.pageIndex;
+          pageMap = _this$state.pageMap;
+      var _this$state$param = this.state.param,
+          memberId = _this$state$param.memberId,
+          memberName = _this$state$param.memberName,
+          pageIndex = _this$state$param.pageIndex;
       var onChange = this.onChange,
           onSubmit = this.onSubmit;
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h4", null, "\uD68C\uC6D0 \uB9AC\uC2A4\uD2B8"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("form", {
@@ -51539,11 +51548,7 @@ var Write = /*#__PURE__*/function (_Component) {
     value: function componentDidMount() {}
   }, {
     key: "componentDidUpdate",
-    value: function componentDidUpdate(prevProps, prevState) {
-      if (this.state.pageIndex !== prevState.pageIndex) {
-        this.loadItem();
-      }
-    }
+    value: function componentDidUpdate(prevProps, prevState) {}
   }, {
     key: "loadItem",
     value: function () {
@@ -51613,15 +51618,28 @@ var Write = /*#__PURE__*/function (_Component) {
   }, {
     key: "render",
     value: function render() {
-      var Item = this.state.Item;
+      var _this$state = this.state,
+          Item = _this$state.Item,
+          csrf = _this$state.csrf;
       var onChange = this.onChange,
           onSubmit = this.onSubmit,
           handleClick = this.handleClick;
       var maxSize = document.querySelector("#maxSize").value;
       var extns = document.querySelector("#extns").value;
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("h4", null, "\uD68C\uC6D0 \uC0C1\uC138"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("form", {
-        onSubmit: onSubmit
-      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "ID : "), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, Item.memberId)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+        action: "./update",
+        method: "post",
+        name: "frm",
+        encType: "multipart/form-data"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+        type: "hidden",
+        name: "_csrf",
+        value: csrf || ""
+      }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+        type: "hidden",
+        name: "no",
+        value: Item.no || ""
+      }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, "ID : "), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("label", null, Item.memberId)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
         type: "radio",
         name: "memberType",
         value: "10",
@@ -51645,7 +51663,8 @@ var Write = /*#__PURE__*/function (_Component) {
         maxSize: maxSize,
         extns: extns,
         maxFile: 3,
-        fileId: 1
+        atchName: "atchFileImg",
+        fileId: Item.fileId
       }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("button", {
         type: "submit"
       }, "\uC218\uC815"))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
@@ -52174,9 +52193,15 @@ module.exports = (string, separator) => {
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(react__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var _css_common_fileupload_css__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(480);
-/* harmony import */ var _css_common_fileupload_css__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_css_common_fileupload_css__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(63);
+/* harmony import */ var axios__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(axios__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var _css_common_fileupload_css__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(480);
+/* harmony import */ var _css_common_fileupload_css__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(_css_common_fileupload_css__WEBPACK_IMPORTED_MODULE_2__);
 function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -52201,6 +52226,7 @@ function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.g
 
 
 
+
 var fileupload = /*#__PURE__*/function (_Component) {
   _inherits(fileupload, _Component);
 
@@ -52213,9 +52239,11 @@ var fileupload = /*#__PURE__*/function (_Component) {
 
     _this = _super.call(this, props);
     _this.state = {
-      file: null
+      FileItem: [],
+      atchName: props.atchName || "atchFile"
     };
     _this.fileChange = _this.fileChange.bind(_assertThisInitialized(_this));
+    _this.fileInit = _this.fileInit.bind(_assertThisInitialized(_this));
     return _this;
   }
 
@@ -52225,8 +52253,56 @@ var fileupload = /*#__PURE__*/function (_Component) {
       this.fileChange();
     }
   }, {
+    key: "componentDidUpdate",
+    value: function componentDidUpdate(prevProps, prevState) {
+      if (prevProps.fileId !== this.props.fileId) {
+        this.fileInit(this.props.fileId);
+      }
+    }
+  }, {
+    key: "fileInit",
+    value: function () {
+      var _fileInit = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(fileId) {
+        var _this2 = this;
+
+        return regeneratorRuntime.wrap(function _callee$(_context) {
+          while (1) {
+            switch (_context.prev = _context.next) {
+              case 0:
+                _context.next = 2;
+                return axios__WEBPACK_IMPORTED_MODULE_1___default()({
+                  method: 'get',
+                  url: '/file/api/selectFiles',
+                  params: {
+                    fileId: fileId
+                  }
+                }).then(function (_ref) {
+                  var data = _ref.data;
+
+                  _this2.setState({
+                    FileItem: data.fileMap
+                  });
+                });
+
+              case 2:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }));
+
+      function fileInit(_x) {
+        return _fileInit.apply(this, arguments);
+      }
+
+      return fileInit;
+    }()
+  }, {
     key: "fileChange",
     value: function fileChange() {
+      var _this3 = this;
+
       var maxSize = this.props.maxSize;
       var extns = this.props.extns;
       var maxFile = this.props.maxFile;
@@ -52271,14 +52347,14 @@ var fileupload = /*#__PURE__*/function (_Component) {
               } else {
                 clone = obj.cloneNode();
                 clone.value = "";
-                var count = document.querySelector(".fileArea").childElementCount;
-                obj.name = 'atchFileImg' + count;
-                obj.className = 'atchFileImg' + count;
+                var count = document.querySelector(".btnArea").childElementCount;
+                obj.name = _this3.state.atchName + count;
+                obj.className = _this3.state.atchName + count;
                 document.querySelector(".tempArea").appendChild(clone);
                 document.querySelector(".fileArea").appendChild(obj);
                 var btn = document.createElement("p");
                 btn.className = "tempBtn";
-                btn.classList.add('atchFileImg' + count);
+                btn.classList.add(_this3.state.atchName + count);
                 btn.innerHTML = fileName + "<a href='#' class='delBtn'>x</a>";
                 document.querySelector(".btnArea").appendChild(btn);
                 var reader = new FileReader();
@@ -52287,7 +52363,7 @@ var fileupload = /*#__PURE__*/function (_Component) {
                 reader.onloadend = function () {
                   img.src = reader.result;
                   img.className = "tempImg";
-                  img.classList.add('atchFileImg' + count);
+                  img.classList.add(_this3.state.atchName + count);
                 };
 
                 reader.readAsDataURL(obj.files[0]);
@@ -52307,10 +52383,16 @@ var fileupload = /*#__PURE__*/function (_Component) {
         var delBtn = e.target;
 
         if (delBtn.className.indexOf('delBtn') > -1) {
-          console.log(e.target.parentNode.classList);
-          var header = document.querySelectorAll('.' + delBtn.parentNode.classList[1]);
-          header.forEach(function (value) {
-            value.parentNode.removeChild(value);
+          var dataNo = delBtn.parentNode.dataset.no;
+
+          if (typeof dataNo != "undefined") {
+            var atchNo = document.querySelector(".configArea input[name$=No]");
+            atchNo.value === "" ? atchNo.value = dataNo : atchNo.value += "," + dataNo;
+          }
+
+          var elms = document.querySelectorAll('.' + delBtn.parentNode.classList[1]);
+          elms.forEach(function (elm) {
+            elm.parentNode.removeChild(elm);
           });
         }
       });
@@ -52318,9 +52400,32 @@ var fileupload = /*#__PURE__*/function (_Component) {
   }, {
     key: "render",
     value: function render() {
+      var _this4 = this;
+
+      var FileItem = this.state.FileItem;
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react__WEBPACK_IMPORTED_MODULE_0__["Fragment"], null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+        className: "configArea"
+      }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+        type: "hidden",
+        name: this.state.atchName + "Id",
+        className: this.state.atchName + "Id",
+        value: typeof FileItem[0] === "undefined" ? "" : FileItem[0].fileId
+      }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
+        type: "hidden",
+        name: this.state.atchName + "No",
+        className: this.state.atchName + "No"
+      })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "btnArea"
-      }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
+      }, FileItem.map(function (Item, index) {
+        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("p", {
+          key: index,
+          "data-no": Item.fileNo,
+          className: "tempBtn " + _this4.state.atchName + index
+        }, Item.realFileName, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {
+          href: "#",
+          className: "delBtn"
+        }, "x"));
+      })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "tempArea"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
         type: "file",
@@ -52330,7 +52435,13 @@ var fileupload = /*#__PURE__*/function (_Component) {
         className: "fileArea"
       }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", {
         className: "previewArea"
-      }));
+      }, FileItem.map(function (Item, index) {
+        return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("img", {
+          key: index,
+          src: Item.webPath,
+          className: "tempImg " + _this4.state.atchName + index
+        });
+      })));
     }
   }]);
 
@@ -52632,11 +52743,11 @@ var Login = /*#__PURE__*/function (_Component) {
         action: "./signupProcess",
         method: "post",
         name: "frm",
-        enctype: "multipart/form-data"
+        encType: "multipart/form-data"
       }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
         type: "hidden",
         name: "_csrf",
-        value: csrf == null ? "" : csrf
+        value: csrf || ""
       }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("input", {
         type: "radio",
         name: "memberType",
@@ -52686,7 +52797,8 @@ var Login = /*#__PURE__*/function (_Component) {
       }, "\uD30C\uC77C\uC5C5\uB85C\uB4DC"), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(_common_fileupload__WEBPACK_IMPORTED_MODULE_2__["default"], {
         maxSize: maxSize,
         extns: extns,
-        maxFile: 3
+        maxFile: 3,
+        atchName: "atchFileImg"
       })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("div", null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement(react_router_dom__WEBPACK_IMPORTED_MODULE_1__["Link"], {
         to: "/member/login"
       }, "\uB85C\uADF8\uC778"), " ", /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0___default.a.createElement("a", {

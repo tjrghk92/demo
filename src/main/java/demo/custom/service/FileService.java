@@ -12,8 +12,8 @@ public interface FileService {
 
     public List<CstMap> selectFiles(CstMap cstMap) throws Exception;
 
-    public void insertFiles(CstMap cstMap, MultipartHttpServletRequest multiRequest) throws Exception;
+    public void insertFiles(CstMap cstMap, String atchId, String atchKind, MultipartHttpServletRequest multiRequest) throws Exception;
 
-    public void deleteFiles(CstMap cstMap) throws Exception;
+    public void deleteFiles(CstMap cstMap, String atchId) throws Exception;
     
 }

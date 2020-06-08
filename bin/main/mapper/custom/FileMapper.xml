@@ -116,7 +116,10 @@
         DELETE /*deleteFileDtl */
         FROM file_dtl
         WHERE file_id = #{fileId}  
-        AND file_no in ( #{fileNo} )     
+        AND file_no in 
+        <foreach collection="fileNo" item="item" index="index" open="(" close=")" separator=",">
+            #{item}
+        </foreach>  
     </delete>
 
 

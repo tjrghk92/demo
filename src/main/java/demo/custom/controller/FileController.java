@@ -48,6 +48,24 @@ import org.springframework.web.servlet.ModelAndView;
             e.printStackTrace();
 		}
     	return mav;
+	}
+	
+		
+    /**
+	 * 파일 조회
+	 * 
+	 */
+	@RequestMapping(value="/api/selectFiles")
+	public ModelAndView selectFileList(MapAdp adapter) throws Exception{
+  
+		ModelAndView mav = new ModelAndView("jsonView");
+    	try{
+    		mav.addObject("fileMap", fileService.selectFiles(adapter.getCstMap()));
+    	}
+    	catch (Exception e){
+            e.printStackTrace();
+		}
+    	return mav;
     }
 
      /**

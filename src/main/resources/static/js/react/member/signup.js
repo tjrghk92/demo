@@ -68,8 +68,8 @@ class Login extends Component {
     
     return (
       <div>
-        <form action="./signupProcess" method="post" name="frm" enctype="multipart/form-data">
-          <input type="hidden" name="_csrf" value={csrf == null ? "" : csrf} />
+        <form action="./signupProcess" method="post" name="frm" encType="multipart/form-data">
+          <input type="hidden" name="_csrf" value={csrf || ""} />
           <div>
               <input type="radio" name="memberType" value="10" checked={memberType === "10"} onChange={onChange}/> 일반
               <input type="radio" name="memberType" value="11" checked={memberType === "11"} onChange={onChange}/> 특수
@@ -85,7 +85,7 @@ class Login extends Component {
               <input style={style.input} type="submit" value="가입"/>
           </div>
           <button type="button" onClick={handleClick}>파일업로드</button>
-          <Fileupload maxSize={maxSize} extns={extns} maxFile={3} />
+          <Fileupload maxSize={maxSize} extns={extns} maxFile={3} atchName={"atchFileImg"} />
         </form>   
         <div><Link to="/member/login">로그인</Link> <a href = "#" onClick={handleClick } data-link="/" >메인으로</a></div>
       </div>

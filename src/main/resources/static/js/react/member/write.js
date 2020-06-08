@@ -29,13 +29,10 @@ class Write extends Component {
   }
 
   componentDidMount() {
-   
   }
 
   componentDidUpdate(prevProps, prevState){
-    if (this.state.pageIndex !== prevState.pageIndex) {
-      this.loadItem();
-    }
+   
   }
 
   async loadItem() {
@@ -84,15 +81,17 @@ class Write extends Component {
   }
 
   render() {
-    const {Item} = this.state;
+    const {Item, csrf} = this.state;
     const {onChange, onSubmit, handleClick} = this;
     let maxSize =  document.querySelector("#maxSize").value;
     let extns =  document.querySelector("#extns").value;
-
+    
     return (
       <div>
         <h4>회원 상세</h4>
-        <form onSubmit={onSubmit}>
+        <form action="./update" method="post" name="frm" encType="multipart/form-data">
+          <input type="hidden" name="_csrf" value={csrf || ""} />
+          <input type="hidden" name="no" value={Item.no || "" } />
           <div>
             <label>ID : </label>
             <label>{Item.memberId}</label>
@@ -110,7 +109,7 @@ class Write extends Component {
             <label>{Item.regDtm}</label>
           </div>
           <button type="button" onClick={handleClick}>파일업로드</button>
-          <Fileupload maxSize={maxSize} extns={extns} maxFile={3} fileId={1} />
+          <Fileupload maxSize={maxSize} extns={extns} maxFile={3} atchName={"atchFileImg"} fileId={Item.fileId} />
           <div><button type="submit">수정</button></div>
         </form>
         <div>

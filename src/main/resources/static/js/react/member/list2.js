@@ -15,28 +15,28 @@ class List extends Component {
     this.state = {
       loading: false,
       ItemList: [],
-      pageIndex: 1
+      
+      param : {
+        memberId : "",
+        memberName : "",
+        pageIndex : 1
+      },
+      
     };
-
-    this.param = {
-      memberId : "",
-      memberName : ""
-    }
 
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
     this.loadItem = this.loadItem.bind(this);
-
-    this.loadItem();
+    
   }
 
   componentDidMount() {
-   
+    this.loadItem();
   }
 
   componentDidUpdate(prevProps, prevState){
-    if (this.state.pageIndex !== prevState.pageIndex) {
-      this.loadItem();
+    if(prevState.param !== this.state.param){
+      this.loadItem(); 
     }
   }
 
@@ -45,9 +45,9 @@ class List extends Component {
       method: 'get',
       url: './api/list',
       params: {
-        pageIndex: this.state.pageIndex, 
-        memberId: this.param.memberId, 
-        memberName: this.param.memberName 
+        pageIndex: this.state.param.pageIndex, 
+        memberId: this.state.param.memberId, 
+        memberName: this.state.param.memberName 
       }
     }).then(({data}) => {
       this.setState({ 
@@ -60,32 +60,45 @@ class List extends Component {
   }
   
   onChange(e) {
-    this.setState({
+    var tempParam = {
+      memberId : this.state.param.memberId,
+      memberName : this.state.param.memberName,
+      pageIndex : this.state.param.pageIndex
+    };
+
+    Object.assign(tempParam, {
       [e.target.name] : e.target.value
+    });
+    
+    this.setState({
+      param : tempParam,
     });
   }
   
   onSubmit(e) {
     e.preventDefault();
 
-    Object.assign(this.param, {
-      memberId: this.state.memberId,
-      memberName: this.state.memberName,
-    });
-    
     this.loadItem();
+    
   }
 
   handlePageChange(pageIndex) {
-    if(this.state.pageIndex !== pageIndex){
-      this.setState({ 
-        pageIndex: pageIndex
-      })
+    if(this.state.param.pageIndex !== pageIndex){
+      var tempParam = {
+        memberId : this.state.param.memberId,
+        memberName : this.state.param.memberName,
+        pageIndex : pageIndex
+      };
+      
+      this.setState({
+        param : tempParam,
+      });
     }
   }
 
   render() {
-    const {ItemList, pageMap, memberId, memberName, pageIndex} = this.state;
+    const {ItemList, pageMap} = this.state;
+    const {memberId, memberName, pageIndex} = this.state.param;
     const {onChange, onSubmit} = this;
     
     return (

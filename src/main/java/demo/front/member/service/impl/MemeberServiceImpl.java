@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import demo.auth.adapter.AuthorizationAdapter;
 import demo.auth.role.Role;
 import demo.auth.vo.UserVo;
 import demo.custom.map.CstMap;
@@ -14,7 +13,6 @@ import demo.front.member.service.MemeberService;
 import com.google.common.collect.ImmutableMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -29,10 +27,6 @@ public class MemeberServiceImpl implements MemeberService {
 
     @Autowired
     PasswordEncoder passwordEncoder;
-
-    @Autowired
-    AuthorizationAdapter authorizationAdapter;
-
   
 
     @Override
@@ -62,8 +56,6 @@ public class MemeberServiceImpl implements MemeberService {
 
     @Override
     public int updateMember(CstMap cstMap) throws Exception {
-
-        authorizationAdapter.login(cstMap.getString("memberId"), cstMap.getString("memberPass"));
         return memberMapper.updateMember(cstMap);
     }
 
@@ -94,7 +86,7 @@ public class MemeberServiceImpl implements MemeberService {
             user.setAuthorities(new ArrayList<GrantedAuthority>(Arrays.asList(new SimpleGrantedAuthority(roleType))));
        
         } catch (Exception e) {
-            throw new BadCredentialsException("Login Error !!");
+            throw new UsernameNotFoundException("User not Found");
         }
 
         return user;
