@@ -26,20 +26,13 @@ class MenuPage extends React.Component {
     }
 }
 
-const store = createStore(reducers);
-
 const render = () => { 
     ReactDOM.render(
-        <Provider store={store}>
-             <React.Fragment>
-                <MenuPage/>
-            </React.Fragment>
-        </Provider>, 
-        document.querySelector('#root')
+        <MenuPage/>
+        ,document.querySelector('#root')
     );
 };
 
-store.subscribe(render);
 render();
 
 

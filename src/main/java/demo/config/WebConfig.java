@@ -48,7 +48,7 @@ public class WebConfig implements WebMvcConfigurer  {
 
     @Override  
 	public void addInterceptors(InterceptorRegistry registry) {
-        List<String> URL_PATTERNS = Arrays.asList("/member/**", "/main/**");
+        List<String> URL_PATTERNS = Arrays.asList("/member/**", "/main/**", "/menu/**");
         //List<String> URL_EXCLUDE_PATTERNS = Arrays.asList("/member/login");
         registry.addInterceptor(pageInterceptor)  
                 .addPathPatterns(URL_PATTERNS);
