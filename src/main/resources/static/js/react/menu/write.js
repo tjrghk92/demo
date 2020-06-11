@@ -65,14 +65,12 @@ class Write extends Component {
 
   nodeClicked(e, rowInfo){
     console.log(rowInfo)
-    if (event.target.className.includes('collapseButton') ||
-        event.target.className.includes('expandButton')) {
+    if (e.target.className.includes('collapseButton') ||
+        e.target.className.includes('expandButton')) {
         // ignore the event
     } else {
         this.setState({selectedNodeId: rowInfo.node.id});
     }
-
-    
   }
   
   
@@ -101,8 +99,8 @@ class Write extends Component {
             <SortableTree
                 treeData={this.state.treeData}
                 onChange={treeData => this.setState({ treeData })}
-                getNodeKey={({ node,treeIndex }) => node.id = treeIndex}
-                generateNodeProps={rowInfo => {
+                getNodeKey={({ node, treeIndex }) => node.id = treeIndex}
+                generateNodeProps={rowInfo => { 
                   let nodeProps =  { onClick: e => this.nodeClicked(e, rowInfo) };
                   if (this.state.selectedNodeId === rowInfo.node.id) {
                       nodeProps.className = 'selected-node';

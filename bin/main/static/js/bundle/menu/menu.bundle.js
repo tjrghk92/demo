@@ -51309,7 +51309,7 @@ var Write = /*#__PURE__*/function (_Component) {
     value: function nodeClicked(e, rowInfo) {
       console.log(rowInfo);
 
-      if (event.target.className.includes('collapseButton') || event.target.className.includes('expandButton')) {// ignore the event
+      if (e.target.className.includes('collapseButton') || e.target.className.includes('expandButton')) {// ignore the event
       } else {
         this.setState({
           selectedNodeId: rowInfo.node.id
